@@ -5,7 +5,7 @@ from telebot import types
 import requests
 import os
 import json
-app=Telebot(os.environ['TELEGRAM_TOKEN'])
+app=telebot.TeleBot(os.environ['TELEGRAM_TOKEN'])
 main_markup = types.ReplyKeyboardMarkup(row_width=3)
 main_markup.add(types.KeyboardButton("Carátula"), types.KeyboardButton(
     "Notas"), types.KeyboardButton("Ayuda"))
