@@ -2,7 +2,6 @@ asgiref==3.4.1
 autopep8==1.5.7
 backports.entry-points-selectable==1.1.0
 beautifulsoup4==4.9.3
-blinker==1.4
 Brlapi==0.8.2
 bs4==0.0.1
 certifi==2020.6.20
