@@ -19,21 +19,22 @@ yes_no_markup.add(types.KeyboardButton("Si"), types.KeyboardButton(
 #####################################################################
 # Static variables
 app=telebot.TeleBot(os.environ['TELEGRAM_TOKEN'])
-api_url = "http://generador-caratulas-ucsp-api.herokuapp.com"
-redis = redis.Redis.from_url(os.environ.get("REDIS_URL"))
+api_url = "http://generador-caratulas-ucsp-api.herokuapp.com/"
+redis = redis.Redis.from_url(os.environ['REDIS_URL'])
+#Lo cambié todo a minúsculas porque al parser de json no le agrada :C
 carreras = [
     "ARQUITECTURA Y URBANISMO",
-    "INGENIERÍA AMBIENTAL",
-    "INGENIERIA MECATRÓNICA",
-    "ADMINISTRACIÓN DE NEGOCIOS",
-    "INGENIERÍA CIVIL",
+    "INGENIERIA AMBIENTAL",
+    "INGENIERIA MECATRONICA",
+    "ADMINISTRACION DE NEGOCIOS",
+    "INGENIERIA CIVIL",
     "CONTABILIDAD",
-    "CIENCIA DE LA COMPUTACIÓN",
+    "CIENCIA DE LA COMPUTACION",
     "DERECHO",
-    "EDUCACIÓN INICIAL Y PRIMARIA",
-    "INGENIERÍA ELECTRÓNICA Y DE TELECOMUNICACIONES",
-    "INGENIERÍA INDUSTRIAL",
-    "PSICOLOGÍA"
+    "EDUCACION INICIAL Y PRIMARIA",
+    "INGENIERIA ELECTRONICA Y DE TELECOMUNICACIONES",
+    "INGENIERIA INDUSTRIAL",
+    "PSICOLOGIA"
 ]
 # Why do I not hard code the following??
 # It runs literally one time in the app's lifetime
@@ -95,10 +96,12 @@ def generar_pdf(message, carrera, titulo, curso, semestre):
         try:
             # If this doesn't work I'll have to save the pdf in a file
             # and send it to the user
+            #update: It works :D
             r = requests.post(api_url, data=json.dumps(data))
             app.send_document(message.chat.id, api_url +
                               "retornar_caratula/"+r.text)
-        except:
+        except Exception as e:
+            print(e)
             app.send_message(
                 message.chat.id, "Hubo un problema al intentar generar la carátula.", reply_markup=main_markup)
 
