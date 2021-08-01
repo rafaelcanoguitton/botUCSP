@@ -99,7 +99,7 @@ def generar_pdf(message, carrera, titulo, curso, semestre):
             #update: It works :D
             r = requests.post(api_url, data=json.dumps(data))
             app.send_document(message.chat.id, api_url +
-                              "retornar_caratula/"+r.text)
+                              "retornar_caratula/"+r.text,reply_markup=main_markup)
         except Exception as e:
             print(e)
             app.send_message(
