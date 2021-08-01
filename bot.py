@@ -20,10 +20,7 @@ yes_no_markup.add(types.KeyboardButton("Si"), types.KeyboardButton(
 # Static variables
 app=telebot.TeleBot(os.environ['TELEGRAM_TOKEN'])
 api_url = "http://generador-caratulas-ucsp-api.herokuapp.com"
-#TODO: Fill parameters
-redis = redis.Redis(
-    host='localhost',
-    port='6379')
+redis = redis.Redis.from_url(os.environ.get("REDIS_URL"))
 carreras = [
     "ARQUITECTURA Y URBANISMO",
     "INGENIERÍA AMBIENTAL",
@@ -98,9 +95,9 @@ def generar_pdf(message, carrera, titulo, curso, semestre):
         try:
             # If this doesn't work I'll have to save the pdf in a file
             # and send it to the user
+            r = requests.post(api_url, data=json.dumps(data))
             app.send_document(message.chat.id, api_url +
                               "retornar_caratula/"+r.text)
-            r = requests.post(api_url, data=json.dumps(data))
         except:
             app.send_message(
                 message.chat.id, "Hubo un problema al intentar generar la carátula.", reply_markup=main_markup)
