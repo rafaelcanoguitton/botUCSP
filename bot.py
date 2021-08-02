@@ -114,9 +114,14 @@ def pri_not(message):
     if cod and psw:
         app.send_message(message.chat.id, "Un momento por favor :)")
         try:
-            grades = get_notas_string(cod, psw)
-            app.send_document(message.chat.id, grades, reply_markup=main_markup)
-        except:
+            grades,kind = get_notas_string(cod, psw)
+            if kind==0:
+                app.send_photo(message.chat.id, grades, reply_markup=main_markup)
+            else:
+                app.send_message(message.chat.id, grades, reply_markup=main_markup)
+        except Exception as e:
+            print(e)
+            print(grades)
             app.send_message(message.chat.id, "Hubo un error al intentar obtener las notas.")
     else:
         app.send_message(
@@ -132,8 +137,11 @@ def notas(message):
 def notas2(message, codigo):
     try:
         app.send_message(message.chat.id, "Un momento por favor :)")
-        notas = get_notas_string(codigo, message.text)
-        app.send_document(message.chat.id, notas, reply_markup=main_markup)
+        grades,kind = get_notas_string(codigo, message.text)
+        if kind==0:
+            app.send_photo(message.chat.id, grades, reply_markup=main_markup)
+        else:
+            app.send_message(message.chat.id, grades, reply_markup=main_markup)
         if redis.hget(message.chat.id, "nunca")!=True:
             time.sleep(5)
             app.send_message(

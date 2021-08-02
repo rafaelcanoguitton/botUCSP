@@ -58,20 +58,22 @@ def get_notas_string(codigo_alumno,contrasenia):
                 tabla.append(notitas)
     df=DataFrame(tabla)
     file_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))
-    df.to_html(file_name+'.html')
-    os.remove(file_name+'.html')
-    return convertapi.convert('png', {
-    'File': 'xd.html'
-    }, from_format = 'html').response['Files'][0]['Url']
-    
-
-
-    # mensaje_retorno=""
-    # for a in range(1,len(tabla)):
-    #     for b,v in enumerate(tabla[a]):
-    #         if v!="-" and b!=2 and b!=1:
-    #             if b==0:
-    #                 mensaje_retorno+=v+" "+tabla[a][b+1]+'\n\n'
-    #             if b>2:
-    #                 mensaje_retorno+=tabla[0][b]+":"+(" "*(5+10-len(tabla[0][b])))+v+'\n'
+    df.to_html(file_name+'.html',index=False,header=False)
+    try:
+        urlretornada=convertapi.convert('png', {
+        'File': file_name+'.html'
+        }, from_format = 'html').response['Files'][0]['Url']
+        return urlretornada,0
+    except:
+        mensaje_retorno=""
+        for a in range(1,len(tabla)):
+            for b,v in enumerate(tabla[a]):
+                if v!="-" and b!=2 and b!=1:
+                    if b==0:
+                        mensaje_retorno+=v+" "+tabla[a][b+1]+'\n\n'
+                    if b>2:
+                        mensaje_retorno+=tabla[0][b]+":"+(" "*(5+10-len(tabla[0][b])))+v+'\n'
+        return mensaje_retorno,1
+    finally:
+        os.remove(file_name+'.html')
     
