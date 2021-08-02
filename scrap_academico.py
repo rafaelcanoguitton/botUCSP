@@ -57,5 +57,5 @@ def get_notas_string(codigo_alumno,contrasenia):
                 if b==0:
                     mensaje_retorno+=v+" "+tabla[a][b+1]+'\n'
                 if b>2:
-                    mensaje_retorno+=tabla[0][b]+": "+'\t'+v+'\n'
+                    mensaje_retorno+=tabla[0][b]+":     "+v+'\n'
     return mensaje_retorno
