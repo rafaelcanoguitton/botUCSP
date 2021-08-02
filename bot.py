@@ -22,6 +22,7 @@ app=telebot.TeleBot(os.environ['TELEGRAM_TOKEN'])
 api_url = "http://generador-caratulas-ucsp-api.herokuapp.com/"
 redis = redis.Redis.from_url(os.environ['REDIS_URL'])
 #Lo cambié todo a minúsculas porque al parser de json no le agrada :C
+#TODO: Somehow parse the special characters e.g
 carreras = [
     "ARQUITECTURA Y URBANISMO",
     "INGENIERIA AMBIENTAL",
