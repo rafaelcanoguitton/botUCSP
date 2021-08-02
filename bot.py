@@ -121,8 +121,7 @@ def pri_not(message):
                 app.send_message(message.chat.id, grades, reply_markup=main_markup)
         except Exception as e:
             print(e)
-            print(grades)
-            app.send_message(message.chat.id, "Hubo un error al intentar obtener las notas.")
+            app.send_message(message.chat.id, "Hubo un error al intentar obtener las notas.",reply_markup=main_markup)
     else:
         app.send_message(
         message.chat.id, "Ingrese su código de alumno.", reply_markup=types.ReplyKeyboardRemove())
@@ -156,7 +155,6 @@ def notas2(message, codigo):
 
 def save_creds(message, codigo, password):
     if message.text == "Si":
-        # TODO: Save creds
         redis.hset(message.chat.id, 'codigo',codigo)
         redis.hset(message.chat.id, 'password',password)
         app.send_message(
