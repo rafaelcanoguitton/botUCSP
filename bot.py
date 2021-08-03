@@ -106,12 +106,14 @@ def pri_not(message):
         try:
             grades,kind = get_notas_string(cod, psw)
             if kind==0:
-                app.edit_message_media(media=types.InputMediaPhoto(grades),chat_id=message.chat.id,message_id=to_edit)
-                app.edit_message_text("",message.chat.id,to_edit)
+                app.delete_message(message.chat.id, to_edit)
+                app.send_photo(message.chat.id, grades, reply_markup=main_markup)
             else:
+                app.delete_message(message.chat.id, to_edit)
                 app.send_message(message.chat.id, grades, reply_markup=main_markup)
         except Exception as e:
             print(e)
+            app.delete_message(message.chat.id, to_edit)
             app.send_message(message.chat.id, "Hubo un error al intentar obtener las notas.",reply_markup=main_markup)
     else:
         app.send_message(
@@ -126,11 +128,13 @@ def notas(message):
 
 def notas2(message, codigo):
     try:
-        app.send_message(message.chat.id, "Un momento por favor :)",reply_markup=types.ReplyKeyboardRemove())
+        to_del=app.send_message(message.chat.id, "Un momento por favor :)",reply_markup=types.ReplyKeyboardRemove()).message_id
         grades,kind = get_notas_string(codigo, message.text)
         if kind==0:
+            app.delete_message(message.chat.id, to_del)
             app.send_photo(message.chat.id, grades, reply_markup=main_markup)
         else:
+            app.delete_message(message.chat.id, to_del)
             app.send_message(message.chat.id, grades, reply_markup=main_markup)
         if redis.hget(message.chat.id, "nunca")!=True:
             app.send_message(
@@ -139,6 +143,7 @@ def notas2(message, codigo):
                 message, save_creds, codigo, message.text)
     except Exception as e:
         print(e)
+        app.delete_message(message.chat.id, to_del)
         app.send_message(
             message.chat.id, "Hubo un problema al intentar obtener las notas.", reply_markup=main_markup)
 
