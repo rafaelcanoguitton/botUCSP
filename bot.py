@@ -176,8 +176,8 @@ def set_caratula(message,doc_id):
                 open(cara_name,'wb').write(cara_file.content)
                 open(tarea_name,'wb').write(tarea_file.content)
                 merger=PdfFileMerger()
-                merger.append(cara_info.file_name)
-                merger.append(tarea_info.file_name)
+                merger.append(cara_name)
+                merger.append(tarea_name)
                 merge_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
                 merger.write(merge_name)
                 merger.close()
