@@ -1,14 +1,7 @@
-from logging import NullHandler
-from typing import Text
-from requests import api
-import telebot
+import telebot,requests,os,json,redis,random,string
 from telebot import types
-import requests
-import os
-import json
-from scrap_academico import *
-import time
-import redis
+from scrap_academico import get_notas_string
+from PyPDF2 import PdfFileMerger
 # Here's where markups are declared
 main_markup = types.ReplyKeyboardMarkup(row_width=3)
 main_markup.add(types.KeyboardButton("/caratula"), types.KeyboardButton(
@@ -16,13 +9,16 @@ main_markup.add(types.KeyboardButton("/caratula"), types.KeyboardButton(
 yes_no_markup = types.ReplyKeyboardMarkup(row_width=2)
 yes_no_markup.add(types.KeyboardButton("Si"), types.KeyboardButton(
     "No"), types.KeyboardButton("Nunca"))
+yesno_markup=types.ReplyKeyboardMarkup(row_width=2)
+yesno_markup.add(types.KeyboardButton("Si"), types.KeyboardButton(
+    "No"))
 #####################################################################
 # Static variables
 app=telebot.TeleBot(os.environ['TELEGRAM_TOKEN'])
 api_url = "http://generador-caratulas-ucsp-api.herokuapp.com/"
 redis = redis.Redis.from_url(os.environ['REDIS_URL'])
 #Lo cambié todo a minúsculas porque al parser de json no le agrada :C
-#TODO: Somehow parse the special characters e.g
+#TODO: Somehow parse the special characters e.g (INGENIERÍA)
 carreras = [
     "ARQUITECTURA Y URBANISMO",
     "INGENIERIA AMBIENTAL",
@@ -37,16 +33,12 @@ carreras = [
     "INGENIERIA INDUSTRIAL",
     "PSICOLOGIA"
 ]
-# Why do I not hard code the following??
-# It runs literally one time in the app's lifetime
-# shut up >:c
 carreras_markup = types.ReplyKeyboardMarkup(row_width=3)
 for carrera in carreras:
     carreras_markup.add(types.KeyboardButton(carrera))
 semestre_markup = types.ReplyKeyboardMarkup(row_width=3)
 for i in range(1, 11):
     semestre_markup.add(types.KeyboardButton(str(i)))
-
 
 @app.message_handler(commands=["start"])
 def start(message):
@@ -95,12 +87,10 @@ def generar_pdf(message, carrera, titulo, curso, semestre):
         data = {"carrera": carrera, "titulo": titulo, "curso": curso,
                 "semestre": int(semestre), "alumnos": alumnos}
         try:
-            # If this doesn't work I'll have to save the pdf in a file
-            # and send it to the user
-            #update: It works :D
             r = requests.post(api_url, data=json.dumps(data))
-            app.send_document(message.chat.id, api_url +
+            sent=app.send_document(message.chat.id, api_url +
                               "retornar_caratula/"+r.text,reply_markup=main_markup)
+            redis.hset(message.chat.id, "last_pdf", sent.document.file_id)
         except Exception as e:
             print(e)
             app.send_message(
@@ -142,7 +132,6 @@ def notas2(message, codigo):
         else:
             app.send_message(message.chat.id, grades, reply_markup=main_markup)
         if redis.hget(message.chat.id, "nunca")!=True:
-            time.sleep(5)
             app.send_message(
                 message.chat.id, "¿Desea guardar sus credenciales para sólo presionar el botón notas la próxima vez?", reply_markup=yes_no_markup)
             app.register_next_step_handler(
@@ -168,7 +157,43 @@ def save_creds(message, codigo, password):
 def ayuda(message):
     app.send_message(
         message.chat.id, "Para usar el bot no oficial de la UCSP usa los siguientes comandos:\n Para generar una carátula, escriba: /caratula e ingrese la información en cuanto se solicite\.\n\nPara obtener las notas de un alumno, escriba: /notas e ingrese su código y contraseña en cuanto se solicite\.\n\nPara obtener ayuda sobre el bot escriba: /ayuda\n\n\nSi desea revisar/contribuir el código fuente de este bot puede revisarlo [aquí](https://github.com/rafaelcanoguitton/botUCSP)\.\nSi desea comunicarse con el creador del bot puede hacerlo [aquí](https://t.me/rafxar)\.", reply_markup=main_markup, parse_mode='MarkdownV2', disable_web_page_preview=True)
-
-
+@app.message_handler(content_types=['document'])
+def doc_handler(message):
+    app.send_message(message.chat.id, "¿Desea poner como carátula de este documento la última carátula generada?",reply_markup=yesno_markup)
+    app.register_next_step_handler(message, set_caratula)
+def set_caratula(message):
+    if message.text == "Si":
+        fileid=redis.hget(message.chat.id, "last_pdf")
+        if fileid:
+            try:
+                app.send_message(message.chat.id, "Un momento por favor :)")
+                with open(fileid+'.pdf','wb') as f:
+                    app.get_file(fileid).download(out=f)
+                with open(message.document.file_id+'.pdf','wb') as f:
+                    app.get_file(message.document.file_id).download(out=f)
+                merger=PdfFileMerger()
+                merger.append(fileid+'.pdf')
+                merger.append(message.document.file_id+'.pdf')
+                merge_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
+                merger.write(merge_name)
+                merger.close()
+                app.send_document(message.chat.id, open(merge_name,'rb'))
+            except Exception as e:
+                print(e)
+                app.send_message(message.chat.id,'Hubo un error al juntar los archivos.')
+            finally:
+                #Inside a try in case some file couldn't be created
+                #so it doesn't crash the entire app
+                try:
+                    os.remove(fileid+'.pdf')
+                    os.remove(message.document.file_id+'.pdf')
+                    os.remove(merge_name)
+                except:
+                    pass
+        else:
+            app.send_message(message.chat.id, "Usted no ha generado una carátula aún.")
+        
+    elif message.text == "No":
+        app.send_message(message.chat.id, "Okay.", reply_markup=main_markup)
 if __name__ == '__main__':
     app.polling(none_stop=True)
