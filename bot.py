@@ -125,7 +125,7 @@ def notas(message):
 
 def notas2(message, codigo):
     try:
-        app.send_message(message.chat.id, "Un momento por favor :)")
+        app.send_message(message.chat.id, "Un momento por favor :)",reply_markup=types.ReplyKeyboardRemove())
         grades,kind = get_notas_string(codigo, message.text)
         if kind==0:
             app.send_photo(message.chat.id, grades, reply_markup=main_markup)
@@ -166,27 +166,28 @@ def set_caratula(message):
         fileid=redis.hget(message.chat.id, "last_pdf")
         if fileid:
             try:
-                app.send_message(message.chat.id, "Un momento por favor :)")
-                with open(fileid+'.pdf','wb') as f:
+                app.send_message(message.chat.id, "Un momento por favor :)",reply_markup=types.ReplyKeyboardRemove())
+                cara_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
+                with open(cara_name,'wb') as f:
                     app.get_file(fileid).download(out=f)
-                with open(message.document.file_id+'.pdf','wb') as f:
+                with open(message.document.file_name+'.pdf','wb') as f:
                     app.get_file(message.document.file_id).download(out=f)
                 merger=PdfFileMerger()
-                merger.append(fileid+'.pdf')
-                merger.append(message.document.file_id+'.pdf')
+                merger.append(cara_name)
+                merger.append(message.document.file_name+'.pdf')
                 merge_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
                 merger.write(merge_name)
                 merger.close()
-                app.send_document(message.chat.id, open(merge_name,'rb'))
+                app.send_document(message.chat.id, open(merge_name,'rb'),reply_markup=main_markup)
             except Exception as e:
                 print(e)
-                app.send_message(message.chat.id,'Hubo un error al juntar los archivos.')
+                app.send_message(message.chat.id,'Hubo un error al juntar los archivos.',reply_markup=main_markup)
             finally:
                 #Inside a try in case some file couldn't be created
                 #so it doesn't crash the entire app
                 try:
-                    os.remove(fileid+'.pdf')
-                    os.remove(message.document.file_id+'.pdf')
+                    os.remove(cara_name)
+                    os.remove(message.document.file_name+'.pdf')
                     os.remove(merge_name)
                 except:
                     pass
