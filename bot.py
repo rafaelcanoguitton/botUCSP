@@ -171,8 +171,10 @@ def set_caratula(message,doc_id):
                 tarea_info=app.get_file(doc_id)
                 cara_file=requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(os.environ['TELEGRAM_TOKEN'], cara_info.file_path))
                 tarea_file=requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(os.environ['TELEGRAM_TOKEN'], tarea_info.file_path))
-                open(cara_info.file_name).write(cara_file.content)
-                open(tarea_info.file_name).write(tarea_file.content)
+                cara_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
+                tarea_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
+                open(cara_name).write(cara_file.content)
+                open(tarea_name).write(tarea_file.content)
                 merger=PdfFileMerger()
                 merger.append(cara_info.file_name)
                 merger.append(tarea_info.file_name)
@@ -187,8 +189,8 @@ def set_caratula(message,doc_id):
                 #Inside a try in case some file couldn't be created
                 #so it doesn't crash the entire app
                 try:
-                    os.remove(cara_info.file_name)
-                    os.remove(tarea_info.file_name)
+                    os.remove(cara_name)
+                    os.remove(tarea_name)
                     os.remove(merge_name)
                 except:
                     pass
