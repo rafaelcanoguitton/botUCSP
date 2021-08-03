@@ -106,7 +106,7 @@ def pri_not(message):
         try:
             grades,kind = get_notas_string(cod, psw)
             if kind==0:
-                app.edit_message_media(media=grades,chat_id=message.chat.id,message_id=to_edit)
+                app.edit_message_media(media=types.InputMediaPhoto(grades),chat_id=message.chat.id,message_id=to_edit)
                 app.edit_message_text("",message.chat.id,to_edit)
             else:
                 app.send_message(message.chat.id, grades, reply_markup=main_markup)
