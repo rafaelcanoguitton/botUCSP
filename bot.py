@@ -173,8 +173,10 @@ def set_caratula(message,doc_id):
                 tarea_file=requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(os.environ['TELEGRAM_TOKEN'], tarea_info.file_path))
                 cara_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
                 tarea_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
+                print("The error is with the open")
                 open(cara_name).write(cara_file.content)
                 open(tarea_name).write(tarea_file.content)
+                print("The error is not with the open")
                 merger=PdfFileMerger()
                 merger.append(cara_info.file_name)
                 merger.append(tarea_info.file_name)
