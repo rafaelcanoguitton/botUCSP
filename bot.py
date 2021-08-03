@@ -102,11 +102,12 @@ def pri_not(message):
     cod=redis.hget(message.chat.id, "codigo")
     psw=redis.hget(message.chat.id, "password")
     if cod and psw:
-        app.send_message(message.chat.id, "Un momento por favor :)")
+        to_edit=app.send_message(message.chat.id, "Un momento por favor :)").message_id
         try:
             grades,kind = get_notas_string(cod, psw)
             if kind==0:
-                app.send_photo(message.chat.id, grades, reply_markup=main_markup)
+                app.edit_message_media(grades,message.chat.id,to_edit)
+                app.edit_message_text("",message.chat.id,to_edit)
             else:
                 app.send_message(message.chat.id, grades, reply_markup=main_markup)
         except Exception as e:
@@ -200,4 +201,4 @@ def set_caratula(message,doc_id):
     elif message.text == "No":
         app.send_message(message.chat.id, "Okay.", reply_markup=main_markup)
 if __name__ == '__main__':
-    app.polling(none_stop=True)
+    app.polling(none_stop=True,)
