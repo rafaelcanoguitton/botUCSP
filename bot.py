@@ -160,18 +160,22 @@ def ayuda(message):
 @app.message_handler(content_types=['document'])
 def doc_handler(message):
     app.send_message(message.chat.id, "¿Desea poner como carátula de este documento la última carátula generada?",reply_markup=yesno_markup)
-    app.register_next_step_handler(message, set_caratula)
-def set_caratula(message):
+    app.register_next_step_handler(message, set_caratula, message.document.file_id)
+def set_caratula(message,doc_id):
     if message.text == "Si":
         fileid=redis.hget(message.chat.id, "last_pdf")
         if fileid:
             try:
                 app.send_message(message.chat.id, "Un momento por favor :)",reply_markup=types.ReplyKeyboardRemove())
-                cara_file=app.get_file(fileid)
-                tarea_file=app.get_file(message.document.file_id)
+                cara_info=app.get_file(fileid)
+                tarea_info=app.get_file(doc_id)
+                cara_file=requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(os.environ['TELEGRAM_TOKEN'], cara_info.file_path))
+                tarea_file=requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(os.environ['TELEGRAM_TOKEN'], tarea_info.file_path))
+                open(cara_info.file_name).write(cara_file.content)
+                open(tarea_info.file_name).write(tarea_file.content)
                 merger=PdfFileMerger()
-                merger.append(cara_file.file_path)
-                merger.append(message.document.file_name+'.pdf')
+                merger.append(cara_info.file_name)
+                merger.append(tarea_info.file_name)
                 merge_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
                 merger.write(merge_name)
                 merger.close()
@@ -183,8 +187,8 @@ def set_caratula(message):
                 #Inside a try in case some file couldn't be created
                 #so it doesn't crash the entire app
                 try:
-                    os.remove(cara_file.file_path)
-                    os.remove(tarea_file.file_path)
+                    os.remove(cara_info.file_name)
+                    os.remove(tarea_info.file_name)
                     os.remove(merge_name)
                 except:
                     pass
