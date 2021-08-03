@@ -169,7 +169,8 @@ def set_caratula(message):
                 app.send_message(message.chat.id, "Un momento por favor :)",reply_markup=types.ReplyKeyboardRemove())
                 cara_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
                 with open(cara_name,'wb') as f:
-                    app.get_file(fileid).download(out=f)
+                    f.write(app.get_file(fileid).read())
+                    #app.get_file(fileid).download(out=f)
                 with open(message.document.file_name+'.pdf','wb') as f:
                     f.write(app.get_file(message.document.file_id).read())
                     #app.get_file(message.document.file_id).download(out=f)
