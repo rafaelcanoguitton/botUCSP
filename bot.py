@@ -167,15 +167,10 @@ def set_caratula(message):
         if fileid:
             try:
                 app.send_message(message.chat.id, "Un momento por favor :)",reply_markup=types.ReplyKeyboardRemove())
-                cara_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
-                with open(cara_name,'wb') as f:
-                    file=app.get_file(fileid)
-                    file.download(out=f)
-                with open(message.document.file_name+'.pdf','wb') as f:
-                    file=app.get_file(message.document.file_id).download(out=f)
-                    file.download(out=f)
+                cara_file=app.get_file(fileid)
+                tarea_file=app.get_file(message.document.file_id)
                 merger=PdfFileMerger()
-                merger.append(cara_name)
+                merger.append(cara_file.file_path)
                 merger.append(message.document.file_name+'.pdf')
                 merge_name=''.join(random.choice(string.ascii_lowercase) for i in range(8))+".pdf"
                 merger.write(merge_name)
@@ -188,8 +183,8 @@ def set_caratula(message):
                 #Inside a try in case some file couldn't be created
                 #so it doesn't crash the entire app
                 try:
-                    os.remove(cara_name)
-                    os.remove(message.document.file_name+'.pdf')
+                    os.remove(cara_file.file_path)
+                    os.remove(tarea_file.file_path)
                     os.remove(merge_name)
                 except:
                     pass
