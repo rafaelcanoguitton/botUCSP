@@ -171,7 +171,8 @@ def set_caratula(message):
                 with open(cara_name,'wb') as f:
                     app.get_file(fileid).download(out=f)
                 with open(message.document.file_name+'.pdf','wb') as f:
-                    app.get_file(message.document.file_id).download(out=f)
+                    f.write(app.get_file(message.document.file_id).read())
+                    #app.get_file(message.document.file_id).download(out=f)
                 merger=PdfFileMerger()
                 merger.append(cara_name)
                 merger.append(message.document.file_name+'.pdf')
