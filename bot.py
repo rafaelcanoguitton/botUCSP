@@ -82,7 +82,7 @@ def generar_pdf(message, carrera, titulo, curso, semestre):
     if len(alumnos) > 6 or not alumnos:
         app.send_message(message.chat.id, "No se admiten más de 6 alumnos.")
     else:
-        data = {"carrera": carrera, "titulo": titulo, "curso": curso,
+        data = {"carrera": carrera, "titulo": titulo.upper(), "curso": curso.upper(),
                 "semestre": int(semestre), "alumnos": alumnos}
         try:
             r = requests.post(api_url, data=json.dumps(data))
