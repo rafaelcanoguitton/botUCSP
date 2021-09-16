@@ -16,7 +16,7 @@ yesno_markup.add(types.KeyboardButton("Si"), types.KeyboardButton(
 # Static variables
 app=telebot.TeleBot(os.environ['TELEGRAM_TOKEN'])
 api_url = "http://generador-caratulas-ucsp-api.herokuapp.com/"
-redis = redis.Redis.from_url(os.environ['REDIS_URL'])
+redis = redis.Redis.from_url(os.environ['REDIS_URL'],health_check_interval=30)
 carreras = [
     "ARQUITECTURA Y URBANISMO",
     "INGENIERÍA AMBIENTAL",
