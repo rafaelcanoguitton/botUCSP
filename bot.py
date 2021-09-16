@@ -16,7 +16,7 @@ yesno_markup.add(types.KeyboardButton("Si"), types.KeyboardButton(
 # Static variables
 app=telebot.TeleBot(os.environ['TELEGRAM_TOKEN'])
 api_url = "http://generador-caratulas-ucsp-api.herokuapp.com/"
-redis = redis.Redis.from_url(os.environ['REDIS_URL'],health_check_interval=30)
+redis = redis.Redis.from_url(os.environ['REDIS_URL'])
 carreras = [
     "ARQUITECTURA Y URBANISMO",
     "INGENIERÍA AMBIENTAL",
@@ -204,4 +204,5 @@ def set_caratula(message,doc_id):
     elif message.text == "No":
         app.send_message(message.chat.id, "Okay.", reply_markup=main_markup)
 if __name__ == '__main__':
+    print("Bot UCSP Iniciado.")
     app.polling(none_stop=True,)
