@@ -36,7 +36,7 @@ def get_notas_string(codigo_alumno,contrasenia):
     '__LASTFOCUS':	"",
      l[0]['name']: l[0]['value'],
      l[1]['name']: l[1]['value'],
-    'cmb_periodo':	"127", 
+    'cmb_periodo':	"128", 
 }
     final = r_obj.post('https://academico.ucsp.edu.pe/evaluaciones_alumno.aspx',data=data2)
     sopa_final=BeautifulSoup(final.text, "lxml")
